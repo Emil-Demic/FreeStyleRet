@@ -1,4 +1,7 @@
 import argparse
+import random
+
+import numpy as np
 from tqdm import tqdm
 import torch
 import torch.nn.functional as F
@@ -6,7 +9,35 @@ from torch.utils.data import DataLoader
 
 from src.models import ShallowStyleRetrieval, DeepStyleRetrieval
 from src.dataset.data import T2ITestDataset, I2ITestDataset, X2ITestDataset
-from src.utils import getR1Accuary, getR5Accuary, setup_seed
+
+def setup_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.cudnn.benchmark = True
+
+def getR1Accuary(prob):
+    temp = prob.detach().cpu().numpy()
+    temp = np.argsort(temp, axis=1)
+    count = 0
+    for i in range(prob.shape[0]):
+        if temp[i][prob.shape[1]-1] == i:
+            count+=1
+    acc = count/prob.shape[0]
+    return acc
+
+
+def getR5Accuary(prob):
+    temp = prob.detach().cpu().numpy()
+    temp = np.argsort(temp, axis=1)
+    count = 0
+    for i in range(prob.shape[0]):
+        for j in range(prob.shape[1]-4,prob.shape[1]):
+            if temp[i][j] == i:
+                count+=1
+    acc = count/prob.shape[0]
+    return acc
 
 
 def parse_args():
