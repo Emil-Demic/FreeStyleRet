@@ -86,7 +86,7 @@ class I2ITestDataset(Dataset):
 
         self.root = root
 
-        val_path = "val_unseen_user.txt" if args.val_unseen else "val_normal.txt"
+        val_path = "val_normal.txt"
         with open(os.path.join(self.root, val_path), 'r') as f:
             lines = f.readlines()
             val_ids = set(map(int, lines))
