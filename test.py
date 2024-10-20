@@ -14,9 +14,12 @@ def parse_args():
 
     # project settings
     parser.add_argument('--resume', default='', type=str, help='load checkpoints from given path')
-    parser.add_argument('--origin_resume', default='model_large_retrieval_coco.pth', type=str, help='load checkpoints from given path')
-    parser.add_argument('--gram_encoder_path', default='pretrained/vgg_normalised.pth', type=str, help='load vgg from given path')
-    parser.add_argument('--style_cluster_path', default='pretrained/style_cluster.npy', type=str, help='load style prompt from given npy')
+    parser.add_argument('--origin_resume', default='model_large_retrieval_coco.pth', type=str,
+                        help='load checkpoints from given path')
+    parser.add_argument('--gram_encoder_path', default='pretrained/vgg_normalised.pth', type=str,
+                        help='load vgg from given path')
+    parser.add_argument('--style_cluster_path', default='pretrained/style_cluster.npy', type=str,
+                        help='load style prompt from given npy')
     parser.add_argument('--device', default='cuda:0')
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--num_workers', default=6, type=int)
@@ -24,7 +27,7 @@ def parse_args():
     # data settings
     parser.add_argument("--type", type=str, default='style2image', help='choose train text2image or style2image.')
     parser.add_argument("--style", type=str, default='sketch', help='choose sketch, art or mosaic.')
-    parser.add_argument("--test_dataset_path", type=str, default='DSR/')
+    parser.add_argument("--test_dataset_path", type=str, default='fscoco')
     parser.add_argument("--test_json_path", type=str, default='DSR/test.json')
     parser.add_argument("--batch_size", type=int, default=24)
 
@@ -79,7 +82,7 @@ def eval(args, model, dataloader):
 
             r1.append(getR1Accuary(prob))
             r5.append(getR5Accuary(prob))
-    
+
     else:
         for data in enumerate(tqdm(dataloader)):
             if args.prompt == 'BLIP_Retrieval':
@@ -100,13 +103,12 @@ def eval(args, model, dataloader):
             prob1 = torch.softmax((100.0 * text_feature @ original_feature.T), dim=-1)
             prob2 = prob = torch.softmax((100.0 * retrival_feature @ original_feature.T), dim=-1)
             prob = prob1.max(prob2)
-            
+
             r1.append(getR1Accuary(prob))
             r5.append(getR5Accuary(prob))
 
-
-    resr1 = sum(r1)/len(r1)
-    resr5 = sum(r5)/len(r5)
+    resr1 = sum(r1) / len(r1)
+    resr5 = sum(r5) / len(r5)
     print('R@1 Acc is {}'.format(resr1))
     print('R@5 Acc is {}'.format(resr5))
 
@@ -123,15 +125,16 @@ if __name__ == "__main__":
         model = BLIP_Retrieval(args)
     model = model.to(args.device)
     model.load_state_dict(torch.load(args.resume))
-    
+
     if args.type == 'text2image':
-        test_dataset = T2ITestDataset(args.test_dataset_path,  args.test_json_path, model.pre_process_val)
+        test_dataset = T2ITestDataset(args.test_dataset_path, args.test_json_path, model.pre_process_val)
     elif args.type == 'style2image':
-        test_dataset = I2ITestDataset(args.style, args.test_dataset_path,  args.test_json_path, model.pre_process_val)
+        test_dataset = I2ITestDataset(args.test_dataset_path, transforms_sketch=model.pre_process_val,
+                                      transforms_image=model.pre_process_val)
     else:
-        test_dataset = X2ITestDataset(args.style, args.test_dataset_path,  args.test_json_path, model.pre_process_val)
+        test_dataset = X2ITestDataset(args.style, args.test_dataset_path, args.test_json_path, model.pre_process_val)
 
     test_loader = DataLoader(dataset=test_dataset, batch_size=args.batch_size, num_workers=args.num_workers,
-                            pin_memory=True, prefetch_factor=16, shuffle=False, drop_last=True)
+                             pin_memory=True, prefetch_factor=16, shuffle=False, drop_last=True)
 
     eval(args, model, test_loader)
