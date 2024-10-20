@@ -45,7 +45,7 @@ def parse_args():
 
     # project settings
     parser.add_argument('--resume', default='', type=str, help='load checkpoints from given path')
-    parser.add_argument('--origin_resume', default='model_large_retrieval_coco.pth', type=str,
+    parser.add_argument('--origin_resume', default='openai', type=str,
                         help='load checkpoints from given path')
     parser.add_argument('--gram_encoder_path', default='pretrained/vgg_normalised.pth', type=str,
                         help='load vgg from given path')
