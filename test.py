@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from src.models import ShallowStyleRetrieval, DeepStyleRetrieval
 from src.dataset.data import T2ITestDataset, I2ITestDataset, X2ITestDataset
-from src.utils.utils import setup_seed, getR1Accuary, getR5Accuary
+from src.utils import getR1Accuary, getR5Accuary, setup_seed
 
 
 def parse_args():
