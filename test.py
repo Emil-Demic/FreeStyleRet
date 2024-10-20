@@ -152,8 +152,8 @@ if __name__ == "__main__":
         model = ShallowStyleRetrieval(args)
     elif args.prompt == 'DeepPrompt':
         model = DeepStyleRetrieval(args)
-    model = model.to(args.device)
     model.load_state_dict(torch.load(args.resume))
+    model = model.to(args.device)
 
     if args.type == 'text2image':
         test_dataset = T2ITestDataset(args.test_dataset_path, args.test_json_path, model.pre_process_val)
