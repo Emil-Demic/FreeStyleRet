@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-from src.models import ShallowStyleRetrieval, DeepStyleRetrieval, BLIP_Retrieval
+from src.models import ShallowStyleRetrieval, DeepStyleRetrieval
 from src.dataset.data import T2ITestDataset, I2ITestDataset, X2ITestDataset
 from src.utils.utils import setup_seed, getR1Accuary, getR5Accuary
 
@@ -121,8 +121,6 @@ if __name__ == "__main__":
         model = ShallowStyleRetrieval(args)
     elif args.prompt == 'DeepPrompt':
         model = DeepStyleRetrieval(args)
-    else:
-        model = BLIP_Retrieval(args)
     model = model.to(args.device)
     model.load_state_dict(torch.load(args.resume))
 
